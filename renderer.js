@@ -1,5 +1,12 @@
 const { ipcRenderer } = require('electron');
 
+document.getElementById('createUserForm').addEventListener('submit', (evt) => {
+  evt.preventDefault();
+  const username = evt.target.username.value;
+  const password = evt.target.password.value;
+  ipcRenderer.send('create-user', { username, password });
+});
+
 document.getElementById('loginUserForm').addEventListener('submit', (evt) => {
   evt.preventDefault();
   const username = evt.target.username.value;
