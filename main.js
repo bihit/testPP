@@ -34,18 +34,6 @@ let nextPort = 8096;
 
 let currentUser = null;
 
-ipcMain.on('create-user', (event, args) => {
-  const embyPort = nextPort++;
-  db.addUser(args.username, args.password, embyPort, (err, userId) => {
-    if (err) {
-      console.error(err);
-    } else {
-      console.log(`User created with ID: ${userId}`);
-      embyManager.createEmbyInstance(args.username, embyPort);
-    }
-  });
-});
-
 ipcMain.on('login-user', (event, args) => {
   db.getUser(args.username, (err, user) => {
     if (err) {

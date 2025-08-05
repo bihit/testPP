@@ -2,7 +2,13 @@ const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('./database.db');
 
 db.serialize(() => {
-  db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, emby_port INTEGER)");
+  db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, emby_port INTEGER, role TEXT)");
+  db.get("SELECT * FROM users WHERE username = ?", ["admin"], (err, row) => {
+    if (!row) {
+      db.run("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", ["admin", "admin123", "admin"]);
+      console.log("Admin user created: admin / admin123");
+    }
+  });
 });
 
 function addUser(username, password, embyPort, callback) {
