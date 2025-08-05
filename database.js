@@ -1,4 +1,11 @@
-const db = require('better-sqlite3')('./database.db');
+const fs = require('fs');
+const dbPath = './database.db';
+
+if (fs.existsSync(dbPath)) {
+  fs.unlinkSync(dbPath);
+}
+
+const db = require('better-sqlite3')(dbPath);
 
 db.exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, emby_port INTEGER, role TEXT)");
 
