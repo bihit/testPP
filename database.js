@@ -9,10 +9,10 @@ const db = require('better-sqlite3')(dbPath);
 
 db.exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, emby_port INTEGER, role TEXT)");
 
-const admin = db.prepare('SELECT * FROM users WHERE username = ?').get('admin');
+const admin = db.prepare('SELECT * FROM users WHERE username = ?').get('standard');
 if (!admin) {
-  db.prepare('INSERT INTO users (username, password, role) VALUES (?, ?, ?)').run('admin', 'admin123', 'admin');
-  console.log("Admin user created: admin / admin123");
+  db.prepare('INSERT INTO users (username, password, role) VALUES (?, ?, ?)').run('standard', 'standard', 'admin');
+  console.log("Admin user created: standard / standard");
 }
 
 function addUser(username, password, embyPort) {
