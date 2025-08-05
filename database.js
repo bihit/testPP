@@ -1,59 +1,32 @@
-const sqlite3 = require('sqlite3').verbose();
-let db;
+const db = require('better-sqlite3')('./database.db');
 
-function initDb(callback) {
-  db = new sqlite3.Database('./database.db', (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-    console.log('Connected to the database.');
-  });
+db.exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, emby_port INTEGER, role TEXT)");
 
-  db.serialize(() => {
-    db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, emby_port INTEGER, role TEXT)", (err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        db.get("SELECT * FROM users WHERE username = ?", ["admin"], (err, row) => {
-            if (!row) {
-                db.run("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", ["admin", "admin123", "admin"], (err) => {
-                    if (err) {
-                        console.error(err.message);
-                    }
-                    console.log("Admin user created: admin / admin123");
-                    callback();
-                });
-            } else {
-                callback();
-            }
-        });
-    });
-  });
+const admin = db.prepare('SELECT * FROM users WHERE username = ?').get('admin');
+if (!admin) {
+  db.prepare('INSERT INTO users (username, password, role) VALUES (?, ?, ?)').run('admin', 'admin123', 'admin');
+  console.log("Admin user created: admin / admin123");
 }
 
-
-function addUser(username, password, embyPort, callback) {
+function addUser(username, password, embyPort) {
   const stmt = db.prepare("INSERT INTO users (username, password, emby_port) VALUES (?, ?, ?)");
-  stmt.run(username, password, embyPort, function(err) {
-    callback(err, this.lastID);
-  });
-  stmt.finalize();
+  const info = stmt.run(username, password, embyPort);
+  return info.lastInsertRowid;
 }
 
-function getUser(username, callback) {
-  db.get("SELECT * FROM users WHERE username = ?", [username], (err, row) => {
-    callback(err, row);
-  });
+function getUser(username) {
+  const stmt = db.prepare("SELECT * FROM users WHERE username = ?");
+  const user = stmt.get(username);
+  return user;
 }
 
-function deleteUser(username, callback) {
-  db.run("DELETE FROM users WHERE username = ?", [username], function(err) {
-    callback(err, this.changes);
-  });
+function deleteUser(username) {
+  const stmt = db.prepare("DELETE FROM users WHERE username = ?");
+  const info = stmt.run(username);
+  return info.changes;
 }
 
 module.exports = {
-  initDb,
   addUser,
   getUser,
   deleteUser

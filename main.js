@@ -14,11 +14,7 @@ function createWindow () {
   win.loadFile('index.html')
 }
 
-app.whenReady().then(() => {
-  db.initDb(() => {
-    createWindow();
-  });
-});
+app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -39,16 +35,13 @@ let nextPort = 8096;
 let currentUser = null;
 
 ipcMain.on('login-user', (event, args) => {
-  db.getUser(args.username, (err, user) => {
-    if (err) {
-      console.error(err);
-    } else if (user && user.password === args.password) {
-      currentUser = user;
-      event.sender.send('login-success', user);
-    } else {
-      console.log('Invalid username or password');
-    }
-  });
+  const user = db.getUser(args.username);
+  if (user && user.password === args.password) {
+    currentUser = user;
+    event.sender.send('login-success', user);
+  } else {
+    console.log('Invalid username or password');
+  }
 });
 
 ipcMain.on('start-emby', () => {
