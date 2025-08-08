@@ -81,7 +81,7 @@ function getEmbyExecutable() {
   } else if (platform === 'darwin') {
     return path.join(__dirname, 'EmbyServer.app/Contents/MacOS/EmbyServer');
   }
-  throw new Error('Unsupported platform');
+  throw new Error('Nicht unterstützte Plattform');
 }
 
 module.exports = {

@@ -24,3 +24,7 @@ document.getElementById('stop-emby').addEventListener('click', () => {
 document.getElementById('restart-emby').addEventListener('click', () => {
   ipcRenderer.send('restart-emby');
 });
+
+ipcRenderer.on('emby-status-changed', (event, status) => {
+  document.getElementById('emby-status').textContent = status;
+});

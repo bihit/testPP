@@ -5,26 +5,26 @@
     <title>AppBox</title>
   </head>
   <body>
-    <h1>Welcome to AppBox</h1>
-    <p>Your Emby server management solution.</p>
+    <h1>Willkommen bei AppBox</h1>
+    <p>Ihre Emby-Server-Verwaltungslösung.</p>
 
     <div id="user-dashboard" style="display: none;">
-      <h2>User Dashboard</h2>
-      <p>Welcome, <span id="username-display"></span>!</p>
-      <p>Emby Server Status: <span id="emby-status">Stopped</span></p>
-      <button id="start-emby">Start</button>
-      <button id="stop-emby">Stop</button>
-      <button id="restart-emby">Restart</button>
+      <h2>Benutzer-Dashboard</h2>
+      <p>Willkommen, <span id="username-display"></span>!</p>
+      <p>Emby-Server-Status: <span id="emby-status">Gestoppt</span></p>
+      <button id="start-emby">Starten</button>
+      <button id="stop-emby">Stoppen</button>
+      <button id="restart-emby">Neustarten</button>
     </div>
 
     <div id="login-form">
-      <h2>Login</h2>
+      <h2>Anmelden</h2>
       <form id="loginUserForm">
-        <label for="login-username">Username:</label>
+        <label for="login-username">Benutzername:</label>
         <input type="text" id="login-username" name="username" required>
-        <label for="login-password">Password:</label>
+        <label for="login-password">Passwort:</label>
         <input type="password" id="login-password" name="password" required>
-        <button type="submit">Login</button>
+        <button type="submit">Anmelden</button>
       </form>
     </div>
     <script src="./renderer.js"></script>

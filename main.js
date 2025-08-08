@@ -1,8 +1,10 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const db = require('./database.js')
 
+let win;
+
 function createWindow () {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -40,24 +42,27 @@ ipcMain.on('login-user', (event, args) => {
     currentUser = user;
     event.sender.send('login-success', user);
   } else {
-    console.log('Invalid username or password');
+    console.log('Ungültiger Benutzername oder ungültiges Passwort');
   }
 });
 
 ipcMain.on('start-emby', () => {
   if (currentUser) {
     embyManager.startEmby(currentUser.username, currentUser.emby_port);
+    win.webContents.send('emby-status-changed', 'Läuft');
   }
 });
 
 ipcMain.on('stop-emby', () => {
   if (currentUser) {
     embyManager.stopEmby(currentUser.username);
+    win.webContents.send('emby-status-changed', 'Gestoppt');
   }
 });
 
 ipcMain.on('restart-emby', () => {
   if (currentUser) {
     embyManager.restartEmby(currentUser.username, currentUser.emby_port);
+    win.webContents.send('emby-status-changed', 'Läuft');
   }
 });

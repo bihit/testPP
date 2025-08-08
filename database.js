@@ -12,7 +12,7 @@ db.exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,
 const admin = db.prepare('SELECT * FROM users WHERE username = ?').get('standard');
 if (!admin) {
   db.prepare('INSERT INTO users (username, password, role) VALUES (?, ?, ?)').run('standard', 'standard', 'admin');
-  console.log("Admin user created: standard / standard");
+  console.log("Admin-Benutzer erstellt: standard / standard");
 }
 
 function addUser(username, password, embyPort) {
