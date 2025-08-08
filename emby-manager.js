@@ -46,32 +46,60 @@ function createEmbyInstance(username, port) {
 
 const { spawn } = require('child_process');
 
-let embyProcess = null;
+const runningProcesses = new Map();
 
 function startEmby(username, port) {
+  if (runningProcesses.has(username)) {
+    console.log(`Emby-Server für ${username} läuft bereits.`);
+    return;
+  }
+
   const userDataPath = path.join(__dirname, 'data', username);
   const embyExecutable = getEmbyExecutable();
-  embyProcess = spawn(embyExecutable, [`-programdata`, `"${userDataPath}"`, `-port`, port]);
+  const embyProcess = spawn(embyExecutable, [`-programdata`, `"${userDataPath}"`, `-port`, port]);
 
   embyProcess.stdout.on('data', (data) => {
-    console.log(`Emby stdout: ${data}`);
+    console.log(`Emby stdout (${username}): ${data}`);
   });
 
   embyProcess.stderr.on('data', (data) => {
-    console.error(`Emby stderr: ${data}`);
+    console.error(`Emby stderr (${username}): ${data}`);
   });
+
+  embyProcess.on('close', () => {
+    runningProcesses.delete(username);
+    console.log(`Emby-Server für ${username} wurde beendet.`);
+  });
+
+  runningProcesses.set(username, embyProcess);
+  console.log(`Emby-Server für ${username} gestartet.`);
 }
 
-function stopEmby() {
-  if (embyProcess) {
-    embyProcess.kill();
-    embyProcess = null;
+function stopEmby(username) {
+  if (runningProcesses.has(username)) {
+    runningProcesses.get(username).kill();
+    runningProcesses.delete(username);
+    console.log(`Emby-Server für ${username} wird gestoppt.`);
   }
 }
 
 function restartEmby(username, port) {
-  stopEmby();
-  startEmby(username, port);
+  stopEmby(username);
+  // Kurze Verzögerung, um sicherzustellen, dass der Port freigegeben ist
+  setTimeout(() => startEmby(username, port), 1000);
+}
+
+function getServerStatus(username) {
+    return runningProcesses.has(username) ? 'Läuft' : 'Gestoppt';
+}
+
+function getAllServerStatuses() {
+    const statuses = {};
+    const allUsers = require('./database.js').getAllUsers();
+    allUsers.forEach(user => {
+        statuses[user.username] = getServerStatus(user.username);
+    });
+    return statuses;
 }
 
 function getEmbyExecutable() {
@@ -90,5 +118,7 @@ module.exports = {
   createEmbyInstance,
   startEmby,
   stopEmby,
-  restartEmby
+  restartEmby,
+  getServerStatus,
+  getAllServerStatuses
 };
