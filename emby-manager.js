@@ -1,40 +1,9 @@
 const os = require('os');
-const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const embyUrls = {
-  win32: 'https://github.com/MediaBrowser/Emby.Releases/releases/download/4.7.6.0/emby-server-windows-x64-4.7.6.0.exe',
-  darwin: 'https://github.com/MediaBrowser/Emby.Releases/releases/download/4.7.6.0/emby-server-mac-x64-4.7.6.0.pkg'
-};
-
 function getOS() {
   return os.platform();
-}
-
-async function downloadEmby() {
-  const platform = getOS();
-  const url = embyUrls[platform];
-  if (!url) {
-    throw new Error('Unsupported platform');
-  }
-
-  const fileName = path.basename(url);
-  const filePath = path.join(__dirname, fileName);
-  const writer = fs.createWriteStream(filePath);
-
-  const response = await axios({
-    url,
-    method: 'GET',
-    responseType: 'stream'
-  });
-
-  response.data.pipe(writer);
-
-  return new Promise((resolve, reject) => {
-    writer.on('finish', resolve);
-    writer.on('error', reject);
-  });
 }
 
 function createEmbyInstance(username, port) {
@@ -105,16 +74,17 @@ function getAllServerStatuses() {
 function getEmbyExecutable() {
   const platform = getOS();
   if (platform === 'win32') {
+    // For Windows, we assume the executable is in the project root for simplicity.
+    // A real-world app would have a more robust way of finding it.
     return path.join(__dirname, 'emby-server-windows-x64-4.7.6.0.exe');
   } else if (platform === 'darwin') {
-    return path.join(__dirname, 'EmbyServer.app/Contents/MacOS/EmbyServer');
+    return '/Applications/EmbyServer.app/Contents/MacOS/EmbyServer';
   }
   throw new Error('Nicht unterstützte Plattform');
 }
 
 module.exports = {
   getOS,
-  downloadEmby,
   createEmbyInstance,
   startEmby,
   stopEmby,
